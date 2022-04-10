@@ -1,24 +1,139 @@
 # All the soldier types that are in the game
 
+
 class King:
-    pass
+    def __init__(self, team):
+        self.team = team
+        if team.lower() == "black":
+            self.name = "B_king"
+            self.symbol = "♔"
+        else:
+            self.name = "W_King"
+            self.symbol = "♚"
+
+    def get_symbol(self):
+        return self.symbol
+
+    def get_name(self):
+        return self.name
+
+    def __repr__(self):
+        return self.symbol
+
+    def __str__(self):
+        return self.symbol
 
 
 class Queen:
-    pass
+    def __init__(self, team):
+        self.team = team
+        if team.lower() == "black":
+            self.name = "B_Queen"
+            self.symbol = "♕"
+        else:
+            self.name = "W_Queen"
+            self.symbol = "♛"
+
+    def get_symbol(self):
+        return self.symbol
+
+    def get_name(self):
+        return self.name
+
+    def __repr__(self):
+        return self.symbol
+
+    def __str__(self):
+        return self.symbol
 
 
 class Rook:
-    pass
+    def __init__(self, team):
+        self.team = team
+        if team.lower() == "black":
+            self.name = "B_Rook"
+            self.symbol = "♖"
+        else:
+            self.name = "W_Rook"
+            self.symbol = "♜"
+
+    def get_symbol(self):
+        return self.symbol
+
+    def get_name(self):
+        return self.name
+
+    def __repr__(self):
+        return self.symbol
+
+    def __str__(self):
+        return self.symbol
 
 
 class Bishop:
-    pass
+    def __init__(self, team):
+        self.team = team
+        if team.lower() == "black":
+            self.name = "B_Bishop"
+            self.symbol = "♗"
+        else:
+            self.name = "W_Bishop"
+            self.symbol = "♝"
+
+    def get_symbol(self):
+        return self.symbol
+
+    def get_name(self):
+        return self.name
+
+    def __repr__(self):
+        return self.symbol
+
+    def __str__(self):
+        return self.symbol
 
 
 class Knight:
-    pass
+    def __init__(self, team):
+        self.team = team
+        if team.lower() == "black":
+            self.name = "B_Knight"
+            self.symbol = "♘"
+        else:
+            self.name = "W_Knight"
+            self.symbol = "♞"
+
+    def get_symbol(self):
+        return self.symbol
+
+    def get_name(self):
+        return self.name
+
+    def __repr__(self):
+        return self.symbol
+
+    def __str__(self):
+        return self.symbol
 
 
 class Pawn:
-    pass
+    def __init__(self, team):
+        self.team = team
+        if team.lower() == "black":
+            self.name = "B_Pawn"
+            self.symbol = "♙"
+        else:
+            self.name = "W_Pawn"
+            self.symbol = "♟"
+
+    def get_symbol(self):
+        return self.symbol
+
+    def get_name(self):
+        return self.name
+
+    def __repr__(self):
+        return self.symbol
+
+    def __str__(self):
+        return self.symbol
