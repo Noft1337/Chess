@@ -4,3 +4,4 @@ SYNTAX_ERROR = "Invalid input.\n\t" \
 MOVEMENT_ERROR = "The piece in {from} cannot move to {to} as it does not follow its skill set\n\t" \
                  "If you'd like to know what each piece is capable of please visit: %s" % RULES_LINK
 POSITION_ERROR = "The cell you'd like to move from is not manned by a piece of yours."
+EMPTY_SYMBOL = '_'

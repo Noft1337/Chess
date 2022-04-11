@@ -1,5 +1,5 @@
 # All the soldier types that are in the game
-
+# Maybe there's a better way to do this
 
 class King:
     def __init__(self, team):
@@ -16,6 +16,9 @@ class King:
 
     def get_name(self):
         return self.name
+
+    def get_team(self):
+        return self.team
 
     def __repr__(self):
         return self.symbol
@@ -40,6 +43,9 @@ class Queen:
     def get_name(self):
         return self.name
 
+    def get_team(self):
+        return self.team
+
     def __repr__(self):
         return self.symbol
 
@@ -62,6 +68,9 @@ class Rook:
 
     def get_name(self):
         return self.name
+
+    def get_team(self):
+        return self.team
 
     def __repr__(self):
         return self.symbol
@@ -86,6 +95,9 @@ class Bishop:
     def get_name(self):
         return self.name
 
+    def get_team(self):
+        return self.team
+
     def __repr__(self):
         return self.symbol
 
@@ -109,6 +121,9 @@ class Knight:
     def get_name(self):
         return self.name
 
+    def get_team(self):
+        return self.team
+
     def __repr__(self):
         return self.symbol
 
@@ -131,6 +146,9 @@ class Pawn:
 
     def get_name(self):
         return self.name
+
+    def get_team(self):
+        return self.team
 
     def __repr__(self):
         return self.symbol
