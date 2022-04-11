@@ -2,7 +2,7 @@
 # A simple 10x10 board
 # My idea is to make it like a triple array that is built like (10,10,Piece)
 # King, Queen, Bishop, Rook, Knight, Pawn.
-import Soldier_Types
+import Soldier_Classes
 from Variables import *
 
 W = 'White'
@@ -23,27 +23,27 @@ class Board(object):
         self.board = [[EMPTY_SYMBOL for i in range(8)] for i in range(8)]
 
         # Sets the white side of the board
-        self.board[7][num_by_letter('a')] = Soldier_Types.Rook(team=W)
-        self.board[7][num_by_letter('b')] = Soldier_Types.Knight(team=W)
-        self.board[7][num_by_letter('c')] = Soldier_Types.Bishop(team=W)
-        self.board[7][num_by_letter('d')] = Soldier_Types.Queen(team=W)
-        self.board[7][num_by_letter('e')] = Soldier_Types.King(team=W)
-        self.board[7][num_by_letter('f')] = Soldier_Types.Bishop(team=W)
-        self.board[7][num_by_letter('g')] = Soldier_Types.Knight(team=W)
-        self.board[7][num_by_letter('h')] = Soldier_Types.Rook(team=W)
+        self.board[7][num_by_letter('a')] = Soldier_Classes.Rook(team=W)
+        self.board[7][num_by_letter('b')] = Soldier_Classes.Knight(team=W)
+        self.board[7][num_by_letter('c')] = Soldier_Classes.Bishop(team=W)
+        self.board[7][num_by_letter('d')] = Soldier_Classes.Queen(team=W)
+        self.board[7][num_by_letter('e')] = Soldier_Classes.King(team=W)
+        self.board[7][num_by_letter('f')] = Soldier_Classes.Bishop(team=W)
+        self.board[7][num_by_letter('g')] = Soldier_Classes.Knight(team=W)
+        self.board[7][num_by_letter('h')] = Soldier_Classes.Rook(team=W)
         for i in range(8):
-            self.board[6][i] = Soldier_Types.Pawn(team=W)
+            self.board[6][i] = Soldier_Classes.Pawn(team=W)
 
-        self.board[0][num_by_letter('a')] = Soldier_Types.Rook(team=B)
-        self.board[0][num_by_letter('b')] = Soldier_Types.Knight(team=B)
-        self.board[0][num_by_letter('c')] = Soldier_Types.Bishop(team=B)
-        self.board[0][num_by_letter('d')] = Soldier_Types.Queen(team=B)
-        self.board[0][num_by_letter('e')] = Soldier_Types.King(team=B)
-        self.board[0][num_by_letter('f')] = Soldier_Types.Bishop(team=B)
-        self.board[0][num_by_letter('g')] = Soldier_Types.Knight(team=B)
-        self.board[0][num_by_letter('h')] = Soldier_Types.Rook(team=B)
+        self.board[0][num_by_letter('a')] = Soldier_Classes.Rook(team=B)
+        self.board[0][num_by_letter('b')] = Soldier_Classes.Knight(team=B)
+        self.board[0][num_by_letter('c')] = Soldier_Classes.Bishop(team=B)
+        self.board[0][num_by_letter('d')] = Soldier_Classes.Queen(team=B)
+        self.board[0][num_by_letter('e')] = Soldier_Classes.King(team=B)
+        self.board[0][num_by_letter('f')] = Soldier_Classes.Bishop(team=B)
+        self.board[0][num_by_letter('g')] = Soldier_Classes.Knight(team=B)
+        self.board[0][num_by_letter('h')] = Soldier_Classes.Rook(team=B)
         for i in range(8):
-            self.board[1][i] = Soldier_Types.Pawn(team=B)
+            self.board[1][i] = Soldier_Classes.Pawn(team=B)
 
     def check_king(self, x, y):
         """
@@ -63,7 +63,7 @@ class Board(object):
         """
         # todo: check if the cell is either empty/'kingless'/not containing a piece of the playing team
         if self.board[x2][y2] != EMPTY_SYMBOL:
-            if self.board[x1][y1].get_team() != self.board[x2][y2].get_team():
+            if self.board[x1][y1].get_team() == self.board[x2][y2].get_team():
                 return False
         return True
 
@@ -74,11 +74,11 @@ class Board(object):
         :param move_to: where the player wants the piece to move
         :return: True if Valid, False if not
         """
-        x_from = int(self.letters.index(move_from[0]))
+        x_from = int(self.letters.index(move_from[0].upper()))
         # I reverse X and Y (opposite than math) because when it accesses a list it goes to Y first and X last
         y_from = 8 - (int(move_from[1]))
         # doing this because it's reversed since it's a list
-        x_to = int(self.letters.index(move_to[0]))
+        x_to = int(self.letters.index(move_to[0].upper()))
         y_to = 8 - (int(move_to[1]))
         # ^ These are coordinates in the list
         if self.is_cell_moveable(y_from, x_from, y_to, x_to):

@@ -1,7 +1,7 @@
 from Board import Board
 from Variables import *
-import Piece
-import Soldier_Types
+import Piece_Class
+import Soldier_Classes
 # By Michael
 
 

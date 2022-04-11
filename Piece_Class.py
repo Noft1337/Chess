@@ -1,16 +1,18 @@
 # Class of piece (soldier)
 # Responsible for the position of a piece and if it was eaten or not
 # Might not use it
+from Variables import *
+
 
 class Piece(object):
-    def __init__(self, team):
+    def __init__(self, team: str, name: str):
         self.team = team
-        if team.lower() == "black":
-            self.name = "B_king"
-            self.symbol = "♔"
+        if team.lower == "white":
+            self.name = "W_" + name.capitalize()
+            self.symbol = W_SYMBOLS[name]
         else:
-            self.name = "W_King"
-            self.symbol = "♚"
+            self.name = "B_" + name.capitalize()
+            self.symbol = B_SYMBOLS[name]
 
     def get_team(self):
         return self.team
