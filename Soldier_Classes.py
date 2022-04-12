@@ -90,8 +90,6 @@ class Pawn(Piece):
 
     def movement(self, new_x, new_y):
         # Pawn can move only in the y-axis in steps of 1 or 2
-        print(f"old y: {self.y}, new_y {new_y}")
-        print(f"old x: {self.x}, new_x {new_x}")
         if abs(self.y - new_y) == 1 or abs(self.y - new_y) == 2:
             self.y = new_y
             return True

@@ -18,9 +18,8 @@ def num_by_letter(letter: str):
 class Board(object):
     def __init__(self):
         """
-        Initializes a blank playing board
+        Initializes a blank playing board with all the pieces in place
         """
-        self.letters = list('ABCDEFGH')
         self.board = [[EMPTY_SYMBOL for i in range(8)] for i in range(8)]
 
         # Sets the white side of the board
@@ -78,7 +77,7 @@ class Board(object):
             return True
         return False
 
-    def player_move(self, move_from: list[str], move_to: list[str]):
+    def player_move(self, move_from: list[int, int], move_to: list[int, int]):
         """
         Handles the player's move and checking if it is valid
         :param move_from: current cell the piece is in
@@ -86,12 +85,11 @@ class Board(object):
         :return: True if Valid, False if not
         """
         # Defining the coordinates of the cells
-        x_from = int(self.letters.index(move_from[0].upper()))
-        # I'm reversing X and Y (opposite than math) because when it accesses a list it goes to Y first and X last
-        y_from = 8 - (int(move_from[1]))
+        x_from = move_from[0]
+        y_from = move_from[1]
         # doing this because it's reversed since it's a list
-        x_to = int(self.letters.index(move_to[0].upper()))
-        y_to = 8 - (int(move_to[1]))
+        x_to = move_to[0]
+        y_to = move_to[1]
         # Check that we can move to the cell
         if self.is_cell_moveable(y_from, x_from, y_to, x_to):
             # Check that the move is according to the piece movement method
@@ -101,13 +99,16 @@ class Board(object):
                 return True
         return False
 
+    def __getitem__(self, item: list[int]):
+        return self.board[item[0]][item[1]]
+
     def __str__(self):
         """
         Responsible for the moment this class gets printed
         :return: The playing board formatted
         """
         f = 9
-        letters_row = [f'{self.letters[i]} ' for i in range(8)]
+        letters_row = [f'{LETTERS[i]} ' for i in range(8)]
         final = '  ' + ''.join(letters_row).upper() + '\n'
         for b in self.board:
             f -= 1

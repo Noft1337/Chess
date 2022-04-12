@@ -25,3 +25,8 @@ B_SYMBOLS = {
     "Knight": "♘",
     "Pawn": "♙"
 }
+
+
+# lists
+
+LETTERS = list('ABCDEFGH')

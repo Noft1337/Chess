@@ -22,6 +22,9 @@ class Piece(object):
     def get_symbol(self):
         return self.symbol
 
+    def get_cords(self):
+        return self.x, self.y
+
     def get_name(self):
         return self.name
 
