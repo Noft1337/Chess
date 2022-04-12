@@ -46,10 +46,13 @@ class Bishop(Piece):
     def movement(self, new_x, new_y):
         # Bishop moves like a function with the formula of y = mx where m = 1
         # so, we can use the formula m = y2 - y1 / x2 - x1
-        if abs((new_x - self.x) / (new_y - self.y)) == 1:
-            self.x = new_x
-            self.y = new_y
-            return True
+        try:
+            if abs((new_x - self.x) / (new_y - self.y)) == 1:
+                self.x = new_x
+                self.y = new_y
+                return True
+        except ZeroDivisionError:
+            pass
         return False
 
 

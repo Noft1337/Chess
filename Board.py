@@ -109,12 +109,13 @@ class Board(object):
         """
         f = 9
         letters_row = [f'{LETTERS[i]} ' for i in range(8)]
-        final = '  ' + ''.join(letters_row).upper() + '\n'
+        final = '\t' + '\t'.join(letters_row).upper() + '\n'
         for b in self.board:
             f -= 1
-            final += f'{f} '
+            final += f'{f}\t'
             for c in b:
-                final += f'{str(c)} '
+                final += f'{str(c)}\t'
+            final += f'{f}'
             final += '\n'
-        final += '  ' + ''.join(letters_row).upper()
+        final += '\t' + '\t'.join(letters_row).upper()
         return final
