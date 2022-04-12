@@ -11,7 +11,8 @@ def player_move(board: Board):
         play = play.split(" ")
         move_from = list(play[0])
         move_to = list(play[2])
-        board.player_move(move_from, move_to)
+        if not board.player_move(move_from, move_to):
+            print(MOVEMENT_ERROR)
     except IndexError or TypeError:
         # Handles bad user input
         print(SYNTAX_ERROR)

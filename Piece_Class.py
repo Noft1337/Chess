@@ -5,9 +5,11 @@ from Variables import *
 
 
 class Piece(object):
-    def __init__(self, team: str, name: str):
+    def __init__(self, team: str, name: str, x: int, y: int):
         self.team = team
-        if team.lower == "white":
+        self.x = x
+        self.y = y
+        if team.lower() == "white":
             self.name = "W_" + name.capitalize()
             self.symbol = W_SYMBOLS[name]
         else:
