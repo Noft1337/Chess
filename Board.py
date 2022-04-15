@@ -22,6 +22,7 @@ class Board(object):
         """
         self.board = [[EMPTY_SYMBOL for i in range(8)] for i in range(8)]
 
+        # I believe there's a prettier way to do this but couldn't think of one...
         # Sets the white side of the board
         self.board[7][num_by_letter('a')] = Soldier_Classes.Rook(team=W, y=7, x=num_by_letter('a'))
         self.board[7][num_by_letter('b')] = Soldier_Classes.Knight(team=W, y=7, x=num_by_letter('b'))
@@ -68,7 +69,7 @@ class Board(object):
             try:
                 if self.board[x1][y1].get_team() == self.board[x2][y2].get_team() or self.check_king(x2, y2):
                     return False
-            except AttributeError:
+            except (AttributeError, IndexError):
                 # we might get this since there might not be a piece in the target cell
                 # so, it will try to call get_team() on a str
                 # in that case we know that the cell is empty so, we just need to verify it's not a king
@@ -77,11 +78,13 @@ class Board(object):
             return True
         return False
 
-    def player_move(self, move_from: list[int, int], move_to: list[int, int]):
+    def player_move(self, move_from: list[int, int], move_to: list[int, int], test=False):
         """
         Handles the player's move and checking if it is valid
         :param move_from: current cell the piece is in
         :param move_to: where the player wants the piece to move
+        :param test: if we wanna check if it's a checkmate, we need to see where e king can be moved without actually
+        moving it
         :return: True if Valid, False if not
         """
         # Defining the coordinates of the cells
@@ -94,8 +97,10 @@ class Board(object):
         if self.is_cell_moveable(y_from, x_from, y_to, x_to):
             # Check that the move is according to the piece movement method
             if self.board[y_from][x_from].movement(x_to, y_to):
-                self.board[y_to][x_to] = self.board[y_from][x_from]
-                self.board[y_from][x_from] = EMPTY_SYMBOL
+                # The part that skips the actual moving of the king
+                if not test:
+                    self.board[y_to][x_to] = self.board[y_from][x_from]
+                    self.board[y_from][x_from] = EMPTY_SYMBOL
                 return True
         return False
 

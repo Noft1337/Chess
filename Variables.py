@@ -1,10 +1,17 @@
+from colors import *
+
+# Checks
+CHECK = f"{Colors.GREEN}Check!{Colors.END}"
+CHECKMATE = f"{Colors.CYAN}Checkmate!\n\t%s Won!{Colors.END}"
+PATE = f"{Colors.BLUE}Pate situation has been reached!\n\tTie!{Colors.UNDERLINE}"
+
 # Errors
 RULES_LINK = u"https://en.wikipedia.org/wiki/Rules_of_chess#Movement"
-SYNTAX_ERROR = "Invalid input.\n\t" \
-               "Valid Input: <Cell> to <Cell> (e.g A4 to A5)"
-MOVEMENT_ERROR = "Illegal move."
-POSITION_ERROR = "The cell you'd like to move from is not manned by a piece of yours."
-TEAM_ERROR = "You can't move this piece"
+SYNTAX_ERROR = f"{Colors.RED}Invalid input.\n\t" \
+               f"Valid Input: <Cell> to <Cell> (e.g A4 to A5){Colors.END}"
+MOVEMENT_ERROR = f"{Colors.RED}Illegal move.{Colors.END}"
+POSITION_ERROR = f"{Colors.RED}The cell you'd like to move from is not manned by a piece of yours.{Colors.END}"
+TEAM_ERROR = f"{Colors.RED}You can't move this piece{Colors.END}"
 
 # Symbols and Icons
 EMPTY_SYMBOL = '_'
@@ -33,4 +40,4 @@ B_SYMBOLS = {
 LETTERS = list('ABCDEFGH')
 
 # misc
-WHOS_PLAYING = "Playing team: {}"
+WHOS_PLAYING = f"{Colors.YELLOW}Playing team: %s{Colors.END}"
