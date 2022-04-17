@@ -2,7 +2,7 @@ from colors import *
 
 # Checks
 CHECK = f"{Colors.GREEN}Check!{Colors.END}"
-CHECKMATE = f"{Colors.CYAN}Checkmate!\n\t%s Won!{Colors.END}"
+CHECKMATE = f"{Colors.CYAN}Checkmate!\n %s Won!{Colors.END}"
 PATE = f"{Colors.BLUE}Pate situation has been reached!\n\tTie!{Colors.UNDERLINE}"
 
 # Errors

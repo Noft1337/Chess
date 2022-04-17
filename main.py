@@ -29,7 +29,7 @@ def get_opposite_team(piece: Piece_Class.Piece):
     return team
 
 
-def all_kings_moves(king: Soldier_Classes):
+def all_kings_moves(board: Board, king: Soldier_Classes):
     """
     Checks where the King can move based on its current location on the board
     :returns: a list that contains lists of x and y of move able positions
@@ -40,8 +40,11 @@ def all_kings_moves(king: Soldier_Classes):
     y_s = [y0, y0 - 1, y0 + 1]
     for x in x_s:
         for y in y_s:
-            if king.movement(x, y):
-                available_coords.append([x, y])
+            if (x > 8 or x < 0) or (y > 8 or y < 0):
+                pass
+            else:
+                if board.player_move([x0, y0], [x, y], test=True):
+                    available_coords.append([x, y])
     return available_coords
 
 
@@ -50,8 +53,8 @@ def check_all_map(board: Board, king: Soldier_Classes.King, target_coords: list[
     checks all the board for the playing team's pieces, and checks if one of the pieces can reach the desired coords.
     """
     team = get_opposite_team(king)
-    for x in board:
-        for y in board:
+    for x in range(8):
+        for y in range(8):
             if isinstance(board[[x, y]], Piece_Class.Piece):
                 if board[[x, y]].get_team() == team:
                     if is_check(board, [y, x], king, target_coords):
@@ -65,7 +68,8 @@ def is_mate(board: Board, king: Soldier_Classes.King):
     we need to check if the king can move anywhere if so, check if anywhere it can be moved is still checked
     :returns: True/False
     """
-    king_escapes = all_kings_moves(king)
+    king_escapes = all_kings_moves(board, king)
+    print(king_escapes)
     for escape in king_escapes:
         if not check_all_map(board, king, escape):
             return False
@@ -73,10 +77,12 @@ def is_mate(board: Board, king: Soldier_Classes.King):
 
 
 def handle_check(board: Board, king: Soldier_Classes.King):
-    if is_mate(board, king):
+    mate = is_mate(board, king)
+    if mate:
         print(CHECKMATE % get_opposite_team(king))
     else:
         print(CHECK)
+    return mate
 
 
 def is_check(board: Board, coords: list, king: Soldier_Classes.King, other_coords=None):
@@ -133,15 +139,16 @@ def player_move(board: Board, king: Soldier_Classes.King, turn: int):
                         # Since we moved the piece to the target tile,
                         # we need to check if the other king is withing the Piece's reach
                         if is_check(board, move_to, king):
-                            handle_check(board, king)
-        except (TypeError, ValueError, IndexError, AttributeError) as e:
+                            mate = handle_check(board, king)
+        except (ValueError, IndexError, AttributeError) as e:
             # Handles bad user input
             if type(e) is AttributeError:
                 print(MOVEMENT_ERROR)
             else:
                 print(SYNTAX_ERROR)
         finally:
-            return mate
+            if valid:
+                return mate
 
 
 def main():
