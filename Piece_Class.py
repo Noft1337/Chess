@@ -6,18 +6,18 @@ from Variables import *
 
 class Piece(object):
     def __init__(self, team: str, name: str, x: int, y: int):
-        self.team = team
+        self._team = team
         self.x = x
         self.y = y
         if team.lower() == "white":
-            self.name = "W_" + name.capitalize()
+            self.name = "W_" + name.capitalize()[0]
             self.symbol = W_SYMBOLS[name]
         else:
-            self.name = "B_" + name.capitalize()
+            self.name = "B_" + name.capitalize()[0]
             self.symbol = B_SYMBOLS[name]
 
     def get_team(self):
-        return self.team
+        return self._team
 
     def get_symbol(self):
         return self.symbol

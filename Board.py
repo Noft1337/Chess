@@ -64,7 +64,7 @@ class Board(object):
         :return: True/False
         """
         # Make sure a cell contains a Chess Piece
-        if isinstance(self.board[x1][y1], Piece_Class.Piece):
+        if isinstance(self.board[x1][y1], Piece_Class.Piece) is True:
             # A player can't eat its own Piece or a King
             try:
                 if self.board[x1][y1].get_team() == self.board[x2][y2].get_team() or self.check_king(x2, y2):
@@ -90,15 +90,19 @@ class Board(object):
         # Defining the coordinates of the cells
         x_from = move_from[0]
         y_from = move_from[1]
-        # doing this because it's reversed since it's a list
         x_to = move_to[0]
         y_to = move_to[1]
         # Check that we can move to the cell
         if self.is_cell_moveable(y_from, x_from, y_to, x_to):
             # Check that the move is according to the piece movement method
-            if self.board[y_from][x_from].movement(x_to, y_to):
+            if self.board[y_from][x_from].movement(x_to, y_to, test=True):
                 # The part that skips the actual moving of the king
                 if not test:
+                    if isinstance(self.board[y_from][x_from], Soldier_Classes.Pawn) and \
+                            not self.board[y_from][x_from].moved:
+                        pass
+                        # self.board[y_from][x_from].moved = True
+                    self.board[y_from][x_from].movement(x_to, y_to)
                     self.board[y_to][x_to] = self.board[y_from][x_from]
                     self.board[y_from][x_from] = EMPTY_SYMBOL
                 return True

@@ -29,69 +29,63 @@ def get_opposite_team(piece: Piece_Class.Piece):
     return team
 
 
-def all_kings_moves(board: Board, king: Soldier_Classes):
-    """
-    Checks where the King can move based on its current location on the board
-    :returns: a list that contains lists of x and y of move able positions
-    """
-    available_coords = []
-    x0, y0 = king.get_cords()
-    x_s = [x0, x0 - 1, x0 + 1]
-    y_s = [y0, y0 - 1, y0 + 1]
-    for x in x_s:
-        for y in y_s:
-            if (x > 8 or x < 0) or (y > 8 or y < 0):
-                pass
-            else:
-                if board.player_move([x0, y0], [x, y], test=True):
-                    available_coords.append([x, y])
-    return available_coords
+def get_tiles(board: Board, king: Soldier_Classes.King):
+    k_x, k_y = list(king.get_cords())[::-1]
+    final_tiles = []
+    xs = [k_x - 1, k_x, k_x + 1]
+    ys = [k_y - 1, k_y, k_y + 1]
+    for x in xs:
+        for y in ys:
+            # make sure we don't get values outside our playing board
+            if (0 < x < 8) and (0 < y < 8):
+                if board.player_move([k_y, k_x], [y, x], test=True):
+                    final_tiles.append([x, y])
+    return final_tiles
 
 
-def check_all_map(board: Board, king: Soldier_Classes.King, target_coords: list[int, int]):
+def check_whole_board(board: Board, target_coords: list, opposite_team="White" or "Black"):
     """
-    checks all the board for the playing team's pieces, and checks if one of the pieces can reach the desired coords.
+    Checking each cell on the board if it's a Piece and if it's the opposing team of the king
+    Then checking if it can reach the desired tile, meaning king can't escape there
     """
-    team = get_opposite_team(king)
-    for x in range(8):
-        for y in range(8):
-            if isinstance(board[[x, y]], Piece_Class.Piece):
-                if board[[x, y]].get_team() == team:
-                    if is_check(board, [y, x], king, target_coords):
+    for i in range(8):
+        for j in range(8):
+            if isinstance(board[[i, j]], Piece_Class.Piece):
+                if board[[i, j]].get_team() == opposite_team:
+                    if board.player_move([j, i], target_coords[::-1], test=True):
                         return True
     return False
 
 
 def is_mate(board: Board, king: Soldier_Classes.King):
-    """
-    if check is true we need to see if this is mate,
-    we need to check if the king can move anywhere if so, check if anywhere it can be moved is still checked
-    :returns: True/False
-    """
-    king_escapes = all_kings_moves(board, king)
-    print(king_escapes)
+    # We first need to get all the tiles King can escape to.
+    check = False
+    king_escapes = get_tiles(board, king)
+    opposite_team = get_opposite_team(king)
     for escape in king_escapes:
-        if not check_all_map(board, king, escape):
+        # Now we check each escape if it can be checked by some Piece.
+        # If it can be checked it means king could not escape there since it will be eaten
+        check = check_whole_board(board, escape, opposite_team)
+        if not check:
             return False
+    if not check:
+        return False
     return True
 
 
 def handle_check(board: Board, king: Soldier_Classes.King):
     mate = is_mate(board, king)
     if mate:
-        print(CHECKMATE % get_opposite_team(king))
+        print(f"{board}\n{CHECKMATE % get_opposite_team(king)}")
     else:
         print(CHECK)
     return mate
 
 
 def is_check(board: Board, coords: list, king: Soldier_Classes.King, other_coords=None):
-    if other_coords:
-        x = other_coords[0]
-        y = other_coords[1]
-    else:
-        x, y = king.get_cords()
+    x, y = king.get_cords()
     if isinstance(board[coords[::-1]], Piece_Class.Piece):
+        # return board.player_move(coords, [y, x])
         return board[coords[::-1]].movement(x, y)
 
 
@@ -125,7 +119,9 @@ def player_move(board: Board, king: Soldier_Classes.King, turn: int):
             if not check_correct_team_move(board, move_from, turn):
                 print(TEAM_ERROR)
             else:
-                move_to = handle_input(list(play[2]))
+                if play[1] == "to":
+                    play[1] = play[2]
+                move_to = handle_input(list(play[1]))
                 if not move_to or not move_from:
                     # meaning that the function handle_input() got bad input so, we need to
                     print(SYNTAX_ERROR)
@@ -139,6 +135,7 @@ def player_move(board: Board, king: Soldier_Classes.King, turn: int):
                         # Since we moved the piece to the target tile,
                         # we need to check if the other king is withing the Piece's reach
                         if is_check(board, move_to, king):
+                            board[move_to[::-1]].team = get_opposite_team(king)
                             mate = handle_check(board, king)
         except (ValueError, IndexError, AttributeError) as e:
             # Handles bad user input
