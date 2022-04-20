@@ -24,27 +24,30 @@ class Board(object):
 
         # I believe there's a prettier way to do this but couldn't think of one...
         # Sets the white side of the board
-        self.board[7][num_by_letter('a')] = Soldier_Classes.Rook(team=W, y=7, x=num_by_letter('a'))
-        self.board[7][num_by_letter('b')] = Soldier_Classes.Knight(team=W, y=7, x=num_by_letter('b'))
-        self.board[7][num_by_letter('c')] = Soldier_Classes.Bishop(team=W, y=7, x=num_by_letter('c'))
-        self.board[7][num_by_letter('d')] = Soldier_Classes.Queen(team=W, y=7, x=num_by_letter('d'))
-        self.board[7][num_by_letter('e')] = Soldier_Classes.King(team=W, y=7, x=num_by_letter('e'))
-        self.board[7][num_by_letter('f')] = Soldier_Classes.Bishop(team=W, y=7, x=num_by_letter('f'))
-        self.board[7][num_by_letter('g')] = Soldier_Classes.Knight(team=W, y=7, x=num_by_letter('g'))
-        self.board[7][num_by_letter('h')] = Soldier_Classes.Rook(team=W, y=7, x=num_by_letter('h'))
+        self.board[7][num_by_letter('a')] = Soldier_Classes.Rook(team=W)
+        self.board[7][num_by_letter('b')] = Soldier_Classes.Knight(team=W)
+        self.board[7][num_by_letter('c')] = Soldier_Classes.Bishop(team=W)
+        self.board[7][num_by_letter('d')] = Soldier_Classes.Queen(team=W)
+        self.board[7][num_by_letter('e')] = Soldier_Classes.King(team=W)
+        self.board[7][num_by_letter('f')] = Soldier_Classes.Bishop(team=W)
+        self.board[7][num_by_letter('g')] = Soldier_Classes.Knight(team=W)
+        self.board[7][num_by_letter('h')] = Soldier_Classes.Rook(team=W)
         for i in range(8):
-            self.board[6][i] = Soldier_Classes.Pawn(team=W, y=6, x=i)
+            self.board[6][i] = Soldier_Classes.Pawn(team=W)
         # Sets the black side of the board
-        self.board[0][num_by_letter('a')] = Soldier_Classes.Rook(team=B, y=0, x=num_by_letter('a'))
-        self.board[0][num_by_letter('b')] = Soldier_Classes.Knight(team=B, y=0, x=num_by_letter('b'))
-        self.board[0][num_by_letter('c')] = Soldier_Classes.Bishop(team=B, y=0, x=num_by_letter('c'))
-        self.board[0][num_by_letter('d')] = Soldier_Classes.Queen(team=B, y=0, x=num_by_letter('d'))
-        self.board[0][num_by_letter('e')] = Soldier_Classes.King(team=B, y=0, x=num_by_letter('e'))
-        self.board[0][num_by_letter('f')] = Soldier_Classes.Bishop(team=B, y=0, x=num_by_letter('f'))
-        self.board[0][num_by_letter('g')] = Soldier_Classes.Knight(team=B, y=0, x=num_by_letter('g'))
-        self.board[0][num_by_letter('h')] = Soldier_Classes.Rook(team=B, y=0, x=num_by_letter('h'))
+        self.board[0][num_by_letter('a')] = Soldier_Classes.Rook(team=B)
+        self.board[0][num_by_letter('b')] = Soldier_Classes.Knight(team=B)
+        self.board[0][num_by_letter('c')] = Soldier_Classes.Bishop(team=B)
+        self.board[0][num_by_letter('d')] = Soldier_Classes.Queen(team=B)
+        self.board[0][num_by_letter('e')] = Soldier_Classes.King(team=B)
+        self.board[0][num_by_letter('f')] = Soldier_Classes.Bishop(team=B)
+        self.board[0][num_by_letter('g')] = Soldier_Classes.Knight(team=B)
+        self.board[0][num_by_letter('h')] = Soldier_Classes.Rook(team=B)
         for i in range(8):
-            self.board[1][i] = Soldier_Classes.Pawn(team=B, y=1, x=i)
+            self.board[1][i] = Soldier_Classes.Pawn(team=B)
+
+        self.w_king_coords = (7, 4)
+        self.b_king_coords = (0, 4)
 
     def check_king(self, x, y):
         """
@@ -78,12 +81,78 @@ class Board(object):
             return True
         return False
 
-    def player_move(self, move_from: list[int, int], move_to: list[int, int], test=False):
+    def get_king_coords(self, team=W or B):
+        if team == W:
+            return self.w_king_coords
+        else:
+            return self.b_king_coords
+
+    def update_kings(self, x, y):
+        if self.board[x][y].get_team() == B:
+            self.b_king_coords = (x, y)
+        else:
+            self.w_king_coords = (x, y)
+
+    def clear_bishop(self, x1, y1, x2, y2, test=False):
+        while x1 != x2:
+            if x1 > x2:
+                x1 -= 1
+            else:
+                x1 += 1
+            if y1 > y2:
+                y1 -= 1
+            else:
+                y1 += 1
+            if self.board[x1][y1] != EMPTY_SYMBOL:
+                if not test:
+                    print(BLOCKED_WAY)
+                return False
+        return False
+
+    def clear_rook(self, x1, y1, x2, y2, test=False):
+        if x1 != x2:
+            while x1 != x2:
+                if x1 > x2:
+                    x1 -= 1
+                else:
+                    x1 += 1
+                if self.board[x1][y1] != EMPTY_SYMBOL:
+                    if not test:
+                        print(BLOCKED_WAY)
+                    return False
+        else:
+            while y1 != y2:
+                if y1 > y2:
+                    y1 -= 1
+                else:
+                    y1 += 1
+                if self.board[x1][y1] != EMPTY_SYMBOL:
+                    if not test:
+                        print(BLOCKED_WAY)
+                    return False
+            pass
+
+    def clear_way(self, x1, y1, x2, y2, test=False):
+        if isinstance(self.board[x1][y1], Soldier_Classes.Rook):
+            if self.clear_rook(x1, y1, x2, y2, test):
+                return True
+            return False
+        elif isinstance(self.board[x1][y1], Soldier_Classes.Bishop):
+            if self.clear_bishop(x1, y1, x2, y2, test):
+                return True
+            return False
+        elif isinstance(self.board[x1][y1], Soldier_Classes.Bishop):
+            if self.clear_bishop(x1, y1, x2, y2, test) or self.clear_rook(x1, y1, x2, y2, test):
+                return True
+            return False
+        return True
+
+    def player_move(self, move_from: list[int, int], move_to: list[int, int], test_move=False):
         """
         Handles the player's move and checking if it is valid
         :param move_from: current cell the piece is in
         :param move_to: where the player wants the piece to move
-        :param test: if we wanna check if it's a checkmate, we need to see where e king can be moved without actually
+        :param test_move: if we wanna check if it's a checkmate, we need to see where e king can be moved without actually
         moving it
         :return: True if Valid, False if not
         """
@@ -95,17 +164,20 @@ class Board(object):
         # Check that we can move to the cell
         if self.is_cell_moveable(y_from, x_from, y_to, x_to):
             # Check that the move is according to the piece movement method
-            if self.board[y_from][x_from].movement(x_to, y_to, test=True):
-                # The part that skips the actual moving of the king
-                if not test:
-                    if isinstance(self.board[y_from][x_from], Soldier_Classes.Pawn) and \
-                            not self.board[y_from][x_from].moved:
-                        pass
-                        # self.board[y_from][x_from].moved = True
-                    self.board[y_from][x_from].movement(x_to, y_to)
-                    self.board[y_to][x_to] = self.board[y_from][x_from]
-                    self.board[y_from][x_from] = EMPTY_SYMBOL
-                return True
+            if self.board[y_from][x_from].movement(x_from, y_from, x_to, y_to):
+                # Checking the way is clear
+                if self.clear_way(y_from, x_from, y_to, x_to, test_move):
+                    # The part that skips the actual moving of the king
+                    if not test_move:
+                        if isinstance(self.board[y_from][x_from], Soldier_Classes.Pawn) and \
+                                not self.board[y_from][x_from].moved:
+                            pass
+                            # self.board[y_from][x_from].moved = True
+                        self.board[y_to][x_to] = self.board[y_from][x_from]
+                        self.board[y_from][x_from] = EMPTY_SYMBOL
+                        if isinstance(self.board[y_to][x_to], Soldier_Classes.King):
+                            self.update_kings(y_to, x_to)
+                    return True
         return False
 
     def __getitem__(self, item: list[int]):

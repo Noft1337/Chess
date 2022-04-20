@@ -5,10 +5,8 @@ from Variables import *
 
 
 class Piece(object):
-    def __init__(self, team: str, name: str, x: int, y: int):
+    def __init__(self, team: str, name: str):
         self._team = team
-        self.x = x
-        self.y = y
         if team.lower() == "white":
             self.name = "W_" + name.capitalize()[0]
             self.symbol = W_SYMBOLS[name]
@@ -21,9 +19,6 @@ class Piece(object):
 
     def get_symbol(self):
         return self.symbol
-
-    def get_cords(self):
-        return self.x, self.y
 
     def get_name(self):
         return self.name

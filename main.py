@@ -1,23 +1,18 @@
 import Piece_Class
+from colors import *
 from Board import Board
 from Variables import *
 import Soldier_Classes
-
-# By Michael
 
 TURNS = {0: "White", 1: "Black"}
 
 
 def check_correct_team_move(board: Board, cell: list[int, int], turn: int):
-    return board[[cell[1], cell[0]]].get_team() == TURNS[turn % 2]
+    return board[cell[::-1]].get_team() == TURNS[turn % 2]
 
 
 def get_kings_cords(board: Board, team: str = "White" or "Black"):
-    for i in range(8):
-        for j in range(8):
-            if type(board.board[i][j]) is Soldier_Classes.King:
-                if board.board[i][j].get_team() == team:
-                    return [i, j]
+    return board.get_king_coords(team)
 
 
 def get_opposite_team(piece: Piece_Class.Piece):
@@ -30,7 +25,7 @@ def get_opposite_team(piece: Piece_Class.Piece):
 
 
 def get_tiles(board: Board, king: Soldier_Classes.King):
-    k_x, k_y = list(king.get_cords())[::-1]
+    k_x, k_y = list(board.get_king_coords(king.get_team()))[::-1]
     final_tiles = []
     xs = [k_x - 1, k_x, k_x + 1]
     ys = [k_y - 1, k_y, k_y + 1]
@@ -38,7 +33,7 @@ def get_tiles(board: Board, king: Soldier_Classes.King):
         for y in ys:
             # make sure we don't get values outside our playing board
             if (0 < x < 8) and (0 < y < 8):
-                if board.player_move([k_y, k_x], [y, x], test=True):
+                if board.player_move([k_x, k_y], [x, y], test_move=True):
                     final_tiles.append([x, y])
     return final_tiles
 
@@ -48,11 +43,13 @@ def check_whole_board(board: Board, target_coords: list, opposite_team="White" o
     Checking each cell on the board if it's a Piece and if it's the opposing team of the king
     Then checking if it can reach the desired tile, meaning king can't escape there
     """
+    x = target_coords[0]
+    y = target_coords[1]
     for i in range(8):
         for j in range(8):
-            if isinstance(board[[i, j]], Piece_Class.Piece):
-                if board[[i, j]].get_team() == opposite_team:
-                    if board.player_move([j, i], target_coords[::-1], test=True):
+            if isinstance(board[[j, i]], Piece_Class.Piece):
+                if board[[j, i]].get_team() == opposite_team:
+                    if board.player_move([i, j], [x, y], test_move=True):
                         return True
     return False
 
@@ -68,8 +65,6 @@ def is_mate(board: Board, king: Soldier_Classes.King):
         check = check_whole_board(board, escape, opposite_team)
         if not check:
             return False
-    if not check:
-        return False
     return True
 
 
@@ -82,11 +77,9 @@ def handle_check(board: Board, king: Soldier_Classes.King):
     return mate
 
 
-def is_check(board: Board, coords: list, king: Soldier_Classes.King, other_coords=None):
-    x, y = king.get_cords()
-    if isinstance(board[coords[::-1]], Piece_Class.Piece):
-        # return board.player_move(coords, [y, x])
-        return board[coords[::-1]].movement(x, y)
+def is_check(board: Board, coords: list, king: Soldier_Classes.King):
+    x, y = board.get_king_coords(king.get_team())
+    return board[coords[::-1]].movement(coords[0], coords[1], y, x)
 
 
 def handle_input(move: list):
@@ -130,14 +123,16 @@ def player_move(board: Board, king: Soldier_Classes.King, turn: int):
                         print(MOVEMENT_ERROR)
                     else:
                         valid = True
-                        # todo: we need to check if it's a check, if it is check also if its a mate.
-                        #  If neither then it might be a pat
                         # Since we moved the piece to the target tile,
                         # we need to check if the other king is withing the Piece's reach
                         if is_check(board, move_to, king):
-                            board[move_to[::-1]].team = get_opposite_team(king)
                             mate = handle_check(board, king)
-        except (ValueError, IndexError, AttributeError) as e:
+                        else:
+                            # Stalemate is not fully initialized
+                            continue
+                            if is_mate(board, king):
+                                print(STALEMATE)
+        except (ValueError, IndexError) as e:
             # Handles bad user input
             if type(e) is AttributeError:
                 print(MOVEMENT_ERROR)
