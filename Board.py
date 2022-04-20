@@ -14,6 +14,10 @@ def num_by_letter(letter: str):
     letters = list('ABCDEFGH')
     return letters.index(letter.upper())
 
+def letter_by_num(num: int):
+    letters = list('ABCDEFGH')
+    return letters[num - 1]
+
 
 class Board(object):
     def __init__(self):
@@ -147,13 +151,43 @@ class Board(object):
             return False
         return True
 
+    def threatened(self, x, y, team):
+        # this function is the same as main.check_whole_board(), but I couldn't import it due to circular import.
+        for i in range(8):
+            for j in range(8):
+                if isinstance(self.board[i][j], Piece_Class.Piece):
+                    if self.board[i][j].get_team() != team:
+                        if self.board[i][j].movement(i, j, x, y) and self.clear_way(i, j, x, y):
+                            print(f"{Colors.GREEN}"
+                                  f"{self.board[i][j]} ({letter_by_num(j)}{8 - i}) Threatens King in "
+                                  f"{letter_by_num(9 - y)}{8 - x}!"
+                                  f"{Colors.END}")
+                            return True
+        return False
+
+    def is_king_left_threatened(self, x_from, y_from):
+        piece = self.board[x_from][y_from]
+        team = self.board[x_from][y_from].get_team()
+        self.board[x_from][y_from] = EMPTY_SYMBOL
+        if team == B:
+            k_x, k_y = self.b_king_coords
+        else:
+            k_x, k_y = self.w_king_coords
+        try:
+            if self.threatened(k_x, k_y, team):
+                return True
+            return False
+        finally:
+            # In the end we want the piece back to its position.
+            self.board[x_from][y_from] = piece
+
     def player_move(self, move_from: list[int, int], move_to: list[int, int], test_move=False):
         """
         Handles the player's move and checking if it is valid
         :param move_from: current cell the piece is in
         :param move_to: where the player wants the piece to move
-        :param test_move: if we wanna check if it's a checkmate, we need to see where e king can be moved without actually
-        moving it
+        :param test_move: if we want to check if it's a checkmate, we need to see where e king can be moved without
+        actually moving it
         :return: True if Valid, False if not
         """
         # Defining the coordinates of the cells
@@ -167,17 +201,25 @@ class Board(object):
             if self.board[y_from][x_from].movement(x_from, y_from, x_to, y_to):
                 # Checking the way is clear
                 if self.clear_way(y_from, x_from, y_to, x_to, test_move):
-                    # The part that skips the actual moving of the king
+                    if isinstance(self.board[y_from][x_from], Soldier_Classes.King):
+                        if not test_move:
+                            if self.threatened(y_to, x_to, self.board[y_from][x_from].get_team()):
+                                return False
+                    else:
+                        if self.is_king_left_threatened(y_from, x_from):
+                            return False
                     if not test_move:
                         if isinstance(self.board[y_from][x_from], Soldier_Classes.Pawn) and \
                                 not self.board[y_from][x_from].moved:
-                            pass
-                            # self.board[y_from][x_from].moved = True
+                            self.board[y_from][x_from].moved = True
                         self.board[y_to][x_to] = self.board[y_from][x_from]
                         self.board[y_from][x_from] = EMPTY_SYMBOL
                         if isinstance(self.board[y_to][x_to], Soldier_Classes.King):
                             self.update_kings(y_to, x_to)
                     return True
+            else:
+                # todo: check for special moves, since they do not satisfy the piece's movement condition
+                pass
         return False
 
     def __getitem__(self, item: list[int]):

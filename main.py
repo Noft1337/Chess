@@ -79,7 +79,7 @@ def handle_check(board: Board, king: Soldier_Classes.King):
 
 def is_check(board: Board, coords: list, king: Soldier_Classes.King):
     x, y = board.get_king_coords(king.get_team())
-    return board[coords[::-1]].movement(coords[0], coords[1], y, x)
+    return board.player_move(coords, [x, y], test_move=True)
 
 
 def handle_input(move: list):
@@ -129,10 +129,14 @@ def player_move(board: Board, king: Soldier_Classes.King, turn: int):
                             mate = handle_check(board, king)
                         else:
                             # Stalemate is not fully initialized
-                            continue
-                            if is_mate(board, king):
-                                print(STALEMATE)
-        except (ValueError, IndexError) as e:
+                            pass
+                        # todo: stalemate is a situation where the king is not checked but every move it makes it
+                        #  makes it will be checked and there's no legal move to do in order to prevent it
+                        #  so what we need to do is to check if the is_mate is True, because it's checking all the
+                        #  tiles around king to see if they are checked.
+                        #  if it is True, we need to check all the map if they can either block the path to the King
+                        #  or eat one of the Pieces that threat the King
+        except (ValueError, IndexError, AttributeError) as e:
             # Handles bad user input
             if type(e) is AttributeError:
                 print(MOVEMENT_ERROR)
