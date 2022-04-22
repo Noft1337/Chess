@@ -5,6 +5,7 @@ CHECK = f"{Colors.GREEN}Check!{Colors.END}"
 CHECKMATE = f"{Colors.CYAN}Checkmate!\n %s Won!{Colors.END}"
 STALEMATE = f"{Colors.BLUE}Pate situation has been reached!\n\tTie!{Colors.UNDERLINE}"
 
+
 # Errors
 CHECKED_CASTLE = f"{Colors.GREEN}Can't Castle when you're Checked!{Colors.END}"
 THREAT_CASTLE = f"{Colors.GREEN}Can't castle into: %s{Colors.END}"
