@@ -14,6 +14,7 @@ def num_by_letter(letter: str):
     letters = list('ABCDEFGH')
     return letters.index(letter.upper())
 
+
 def letter_by_num(num: int):
     letters = list('ABCDEFGH')
     return letters[num - 1]
@@ -25,7 +26,7 @@ class Board(object):
         Initializes a blank playing board with all the pieces in place
         """
         self.board = [[EMPTY_SYMBOL for i in range(8)] for i in range(8)]
-
+        self.last_moved = (0, 0)
         # I believe there's a prettier way to do this but couldn't think of one...
         # Sets the white side of the board
         self.board[7][num_by_letter('a')] = Soldier_Classes.Rook(team=W)
@@ -111,7 +112,7 @@ class Board(object):
                 if not test:
                     print(BLOCKED_WAY)
                 return False
-        return False
+        return True
 
     def clear_rook(self, x1, y1, x2, y2, test=False):
         if x1 != x2:
@@ -134,7 +135,7 @@ class Board(object):
                     if not test:
                         print(BLOCKED_WAY)
                     return False
-            pass
+        return True
 
     def clear_way(self, x1, y1, x2, y2, test=False):
         if isinstance(self.board[x1][y1], Soldier_Classes.Rook):
@@ -151,17 +152,18 @@ class Board(object):
             return False
         return True
 
-    def threatened(self, x, y, team):
+    def threatened(self, x, y, team, p=True):
         # this function is the same as main.check_whole_board(), but I couldn't import it due to circular import.
         for i in range(8):
             for j in range(8):
                 if isinstance(self.board[i][j], Piece_Class.Piece):
                     if self.board[i][j].get_team() != team:
                         if self.board[i][j].movement(i, j, x, y) and self.clear_way(i, j, x, y):
-                            print(f"{Colors.GREEN}"
-                                  f"{self.board[i][j]} ({letter_by_num(j)}{8 - i}) Threatens King in "
-                                  f"{letter_by_num(9 - y)}{8 - x}!"
-                                  f"{Colors.END}")
+                            if p:
+                                print(f"{Colors.GREEN}"
+                                      f"{self.board[i][j]} ({letter_by_num(j)}{8 - i}) Threatens King in "
+                                      f"{letter_by_num(9 - y)}{8 - x}!"
+                                      f"{Colors.END}")
                             return True
         return False
 
@@ -181,6 +183,86 @@ class Board(object):
             # In the end we want the piece back to its position.
             self.board[x_from][y_from] = piece
 
+    def eat(self, y_from, x_from, y_to, x_to):
+        self.board[y_to][x_to] = self.board[y_from][x_from]
+        self.board[y_from][x_from] = EMPTY_SYMBOL
+        self.update_last_moved(y_to, x_to)
+        # todo: make sure that if a pawn has reached the other side of the board
+        #  it can become a Queen, Knight, Rook or Bishop
+
+    def check_castling_threats(self, y_from, x_from, y_to, x_to, team):
+        """
+        When Castling we can't move it if it's going to be threatened or if it is already checked,
+        this function is here to cover these conditions
+        """
+        if abs(x_from - x_to) == 2 and y_from == y_to:
+            if self.threatened(y_to, x_to, team, p=False):
+                # Check if it is going to be threatened
+                print(THREAT_CASTLE % (letter_by_num(y_to) + str(8 - x_to)))
+                return True
+            elif self.threatened(y_from, x_from, team, p=False):
+                # Check if it is checked
+                print(CHECKED_CASTLE)
+                return True
+        return True
+
+    def team_castling(self, y_from, x_from, y_to, x_to, team):
+        if team == "White":
+            y = 7
+        else:
+            y = 0
+        # Check that the king is in its position
+        if y_from == y and x_from == 4:
+            if x_from < x_to:
+                # Handle King's side
+                x = 7
+            else:
+                # Queen's side
+                x = 0
+            # Check that rook is in its position
+            if isinstance(self.board[y][x], Soldier_Classes.Rook):
+                # Make sure nothing is in the way
+                if self.clear_way(y, x, y, 5, test=True) or self.clear_way(y, x, y, 3, test=True):
+                    # Do the actual Castling
+                    # Move King
+                    self.eat(y_from, x_from, y_to, x_to)
+                    # Move Rook
+                    self.eat(y, x, y, abs(x - 2))
+                    return True
+        return False
+
+    def is_castling(self, y_from, x_from, y_to, x_to):
+        # we can castle only from king's original position as far as I know
+        if isinstance(self.board[y_from][x_from], Soldier_Classes.King):
+            team = self.board[y_from][x_from].get_team()
+            # Make sure the movement is all right
+            if self.check_castling_threats(y_from, x_from, y_to, x_to, team):
+                if self.team_castling(y_from, x_from, y_to, x_to, team):
+                    return True
+        return False
+
+    def is_en_passant(self, y_from, x_from, y_to, x_to):
+        if isinstance(self.board[y_from][x_from], Soldier_Classes.Pawn) and \
+                isinstance(self.board[y_from][x_to], Soldier_Classes.Pawn):
+            if self.board[y_from][x_to].get_team() != self.board[y_from][x_from].get_team():
+                if self.board[y_from][x_to].first:
+                    self.board[y_to][x_to] = self.board[y_from][x_from]
+                    self.board[y_from][x_to] = EMPTY_SYMBOL
+                    return True
+        return False
+
+    def is_pawn_passing(self, y_from, x_from, y_to, x_to):
+        if isinstance(self.board[y_from][x_from], Soldier_Classes.Pawn) and \
+                isinstance(self.board[y_to][x_to], Soldier_Classes.Pawn):
+            if self.board[y_from][x_from].movement(x_from, y_from, x_to, y_to, catch=True):
+                return True
+        return False
+
+    def update_last_moved(self, x, y):
+        if isinstance(self.board[self.last_moved[0]][self.last_moved[1]], Soldier_Classes.Pawn):
+            self.board[self.last_moved[0]][self.last_moved[1]].first = False
+        self.last_moved = (x, y)
+
     def player_move(self, move_from: list[int, int], move_to: list[int, int], test_move=False):
         """
         Handles the player's move and checking if it is valid
@@ -191,10 +273,14 @@ class Board(object):
         :return: True if Valid, False if not
         """
         # Defining the coordinates of the cells
+        if move_from == move_to:
+            return False
         x_from = move_from[0]
         y_from = move_from[1]
         x_to = move_to[0]
         y_to = move_to[1]
+        if test_move:
+            pass
         # Check that we can move to the cell
         if self.is_cell_moveable(y_from, x_from, y_to, x_to):
             # Check that the move is according to the piece movement method
@@ -209,17 +295,19 @@ class Board(object):
                         if self.is_king_left_threatened(y_from, x_from):
                             return False
                     if not test_move:
-                        if isinstance(self.board[y_from][x_from], Soldier_Classes.Pawn) and \
-                                not self.board[y_from][x_from].moved:
-                            self.board[y_from][x_from].moved = True
-                        self.board[y_to][x_to] = self.board[y_from][x_from]
-                        self.board[y_from][x_from] = EMPTY_SYMBOL
+                        self.eat(y_from, x_from, y_to, x_to)
                         if isinstance(self.board[y_to][x_to], Soldier_Classes.King):
                             self.update_kings(y_to, x_to)
                     return True
             else:
-                # todo: check for special moves, since they do not satisfy the piece's movement condition
-                pass
+                if self.is_pawn_passing(y_from, x_from, y_to, x_to):
+                    self.eat(y_from, x_from, y_to, x_to)
+                    return True
+                elif self.is_en_passant(y_from, x_from, y_to, x_to):
+                    self.eat(y_from, x_from, y_to, x_to)
+                    return True
+                elif self.is_castling(y_from, x_from, y_to, x_to):
+                    return True
         return False
 
     def __getitem__(self, item: list[int]):

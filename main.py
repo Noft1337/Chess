@@ -77,9 +77,20 @@ def handle_check(board: Board, king: Soldier_Classes.King):
     return mate
 
 
+def can_check(board: Board, coords: list, x, y):
+    if board[coords[::-1]].movement(coords[1], coords[0], x, y):
+        if board.clear_way(coords[1], coords[0], x, y):
+            return True
+    return False
+
+
 def is_check(board: Board, coords: list, king: Soldier_Classes.King):
     x, y = board.get_king_coords(king.get_team())
-    return board.player_move(coords, [x, y], test_move=True)
+    # return board.player_move(coords, [x, y], test_move=True)
+    # For some reason I could not use it as it returns True Falsely for some reason, so I did it manually
+    if can_check(board, coords, x, y):
+        return True
+    return False
 
 
 def handle_input(move: list):
@@ -136,7 +147,8 @@ def player_move(board: Board, king: Soldier_Classes.King, turn: int):
                         #  tiles around king to see if they are checked.
                         #  if it is True, we need to check all the map if they can either block the path to the King
                         #  or eat one of the Pieces that threat the King
-        except (ValueError, IndexError, AttributeError) as e:
+        # except (ValueError, IndexError, AttributeError) as e:
+        except (IndexError, TypeError, ValueError, AttributeError) as e:
             # Handles bad user input
             if type(e) is AttributeError:
                 print(MOVEMENT_ERROR)
