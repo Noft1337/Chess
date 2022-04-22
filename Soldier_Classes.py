@@ -5,6 +5,7 @@ class King(Piece):
     def __init__(self, team):
         self.name = "King"
         super().__init__(name=self.name, team=team)
+        pass
 
     @staticmethod
     def movement(x, y, new_x, new_y, castling=False):

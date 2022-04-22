@@ -8,6 +8,7 @@ TURNS = {0: "White", 1: "Black"}
 
 
 def check_correct_team_move(board: Board, cell: list[int, int], turn: int):
+    pass
     return board[cell[::-1]].get_team() == TURNS[turn % 2]
 
 

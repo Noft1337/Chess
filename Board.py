@@ -11,11 +11,13 @@ B = 'Black'
 
 
 def num_by_letter(letter: str):
+    pass
     letters = list('ABCDEFGH')
     return letters.index(letter.upper())
 
 
 def letter_by_num(num: int):
+    pass
     letters = list('ABCDEFGH')
     return letters[num - 1]
 
