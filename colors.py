@@ -1,3 +1,6 @@
+import random
+
+
 class Colors:
     HEADER = '\033[95m'
     BLUE = '\033[94m'
@@ -8,3 +11,5 @@ class Colors:
     END = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    ALL_COLORS = [BLUE, CYAN, GREEN, YELLOW, RED]
+    RAND = ALL_COLORS[random.randint(0, 4)]
