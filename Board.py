@@ -54,6 +54,9 @@ class Board(object):
         self.w_king_coords = (7, 4)
         self.b_king_coords = (0, 4)
 
+    def get_board(self):
+        return self.board
+
     def check_king(self, x, y):
         """
         Checks if the cell contains a king, because we can't eat a king
@@ -274,8 +277,8 @@ class Board(object):
         Handles the player's move and checking if it is valid
         :param move_from: current cell the piece is in
         :param move_to: where the player wants the piece to move
-        :param test_move: if we want to check if it's a checkmate, we need to see where e king can be moved without
-        actually moving it
+        :param test_move: if we want to check if it's a valid move we need to check it with this function but without
+        actually moving pieces
         :return: True if Valid, False if not
         """
         # Defining the coordinates of the cells

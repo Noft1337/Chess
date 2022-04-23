@@ -9,10 +9,11 @@ class King(Piece):
     @staticmethod
     def movement(x, y, new_x, new_y, castling=False):
         # King can move 1 tile in any direction so the absolute delta of either x or y or both must be 1
-        if abs(x - new_x) == 1 or abs(y - new_y) == 1:
+        if (abs(x - new_x) == 1 and abs(y - new_y) == 1) or \
+                (abs(x - new_x) == 1 and y == new_y) or \
+                (x == new_x and abs(y - new_y) == 1):
             return True
         if (abs(x - new_x) == 2 and y == new_y) and castling:
-
             return True
         return False
 
