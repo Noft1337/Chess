@@ -4,10 +4,9 @@
 # King, Queen, Bishop, Rook, Knight, Pawn.
 import Piece_Class
 import Soldier_Classes
+# I import variables again because it couldn't find FINAL_MSG as is, I needed to refer to it as Variables.FINAL_MSG
+import Variables
 from Variables import *
-
-W = 'White'
-B = 'Black'
 
 
 def num_by_letter(letter: str):
@@ -17,7 +16,6 @@ def num_by_letter(letter: str):
 
 
 def letter_by_num(num: int):
-    pass
     letters = list('ABCDEFGH')
     return letters[num - 1]
 
@@ -100,8 +98,14 @@ class Board(object):
         else:
             self.w_king_coords = (x, y)
 
-    def clear_bishop(self, x1, y1, x2, y2, test=False):
-        while x1 != x2:
+    def clear_bishop(self, x1, y1, x2, y2):
+        """
+        makes sure that the bishop's way is clear until its target
+        """
+        if abs(x1 - x2) == 1 and abs(y1 - y2) == 1:
+            # if we are moving only 1 tile we don't need to check if the way is clear.
+            return True
+        while x1 != x2 - 1:
             if x1 > x2:
                 x1 -= 1
             else:
@@ -111,45 +115,45 @@ class Board(object):
             else:
                 y1 += 1
             if self.board[x1][y1] != EMPTY_SYMBOL:
-                if not test:
-                    print(BLOCKED_WAY)
                 return False
         return True
 
-    def clear_rook(self, x1, y1, x2, y2, test=False):
+    def clear_rook(self, x1, y1, x2, y2):
+        """
+        makes sure that the rook's way is clear until its target
+        """
+        if abs(x1 - x2) == 1 or abs(y1 - y2) == 1:
+            # if we are moving only 1 tile we don't need to check if the way is clear.
+            return True
         if x1 != x2:
-            while x1 != x2:
+            while x1 != x2 - 1:
                 if x1 > x2:
                     x1 -= 1
                 else:
                     x1 += 1
                 if self.board[x1][y1] != EMPTY_SYMBOL:
-                    if not test:
-                        print(BLOCKED_WAY)
                     return False
         else:
-            while y1 != y2:
+            while y1 != y2 - 1:
                 if y1 > y2:
                     y1 -= 1
                 else:
                     y1 += 1
                 if self.board[x1][y1] != EMPTY_SYMBOL:
-                    if not test:
-                        print(BLOCKED_WAY)
                     return False
         return True
 
-    def clear_way(self, x1, y1, x2, y2, test=False):
+    def clear_way(self, x1, y1, x2, y2):
         if isinstance(self.board[x1][y1], Soldier_Classes.Rook):
-            if self.clear_rook(x1, y1, x2, y2, test):
+            if self.clear_rook(x1, y1, x2, y2):
                 return True
             return False
         elif isinstance(self.board[x1][y1], Soldier_Classes.Bishop):
-            if self.clear_bishop(x1, y1, x2, y2, test):
+            if self.clear_bishop(x1, y1, x2, y2):
                 return True
             return False
-        elif isinstance(self.board[x1][y1], Soldier_Classes.Bishop):
-            if self.clear_bishop(x1, y1, x2, y2, test) or self.clear_rook(x1, y1, x2, y2, test):
+        elif isinstance(self.board[x1][y1], Soldier_Classes.Queen):
+            if self.clear_rook(x1, y1, x2, y2) or self.clear_bishop(x1, y1, x2, y2):
                 return True
             return False
         return True
@@ -162,10 +166,10 @@ class Board(object):
                     if self.board[i][j].get_team() != team:
                         if self.board[i][j].movement(i, j, x, y) and self.clear_way(i, j, x, y):
                             if p:
-                                print(f"{Colors.GREEN}"
-                                      f"{self.board[i][j]} ({letter_by_num(j)}{8 - i}) Threatens King in "
-                                      f"{letter_by_num(9 - y)}{8 - x}!"
-                                      f"{Colors.END}")
+                                Variables.FINAL_MSG += f"{Colors.GREEN} \
+                                      {self.board[i][j]} ({letter_by_num(j)}{8 - i}) Threatens King in \
+                                      {letter_by_num(9 - y)}{8 - x}! \
+                                      {Colors.END}"
                             return True
         return False
 
@@ -200,11 +204,11 @@ class Board(object):
         if abs(x_from - x_to) == 2 and y_from == y_to:
             if self.threatened(y_to, x_to, team, p=False):
                 # Check if it is going to be threatened
-                print(THREAT_CASTLE % (letter_by_num(y_to) + str(8 - x_to)))
+                Variables.FINAL_MSG += THREAT_CASTLE % (letter_by_num(y_to) + str(8 - x_to))
                 return True
             elif self.threatened(y_from, x_from, team, p=False):
                 # Check if it is checked
-                print(CHECKED_CASTLE)
+                Variables.FINAL_MSG += CHECKED_CASTLE
                 return True
         return True
 
@@ -224,7 +228,7 @@ class Board(object):
             # Check that rook is in its position
             if isinstance(self.board[y][x], Soldier_Classes.Rook):
                 # Make sure nothing is in the way
-                if self.clear_way(y, x, y, 5, test=True) or self.clear_way(y, x, y, 3, test=True):
+                if self.clear_way(y, x, y, 5) or self.clear_way(y, x, y, 3):
                     # Do the actual Castling
                     # Move King
                     self.eat(y_from, x_from, y_to, x_to)
@@ -288,7 +292,7 @@ class Board(object):
             # Check that the move is according to the piece movement method
             if self.board[y_from][x_from].movement(x_from, y_from, x_to, y_to):
                 # Checking the way is clear
-                if self.clear_way(y_from, x_from, y_to, x_to, test_move):
+                if self.clear_way(y_from, x_from, y_to, x_to):
                     if isinstance(self.board[y_from][x_from], Soldier_Classes.King):
                         if not test_move:
                             if self.threatened(y_to, x_to, self.board[y_from][x_from].get_team()):

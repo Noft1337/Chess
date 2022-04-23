@@ -1,27 +1,26 @@
 import Piece_Class
-from colors import *
 from Board import Board
 from Variables import *
+from locations import *
 import Soldier_Classes
 
-TURNS = {0: "White", 1: "Black"}
+TURNS = {0: W, 1: B}
 
 
 def check_correct_team_move(board: Board, cell: list[int, int], turn: int):
-    pass
     return board[cell[::-1]].get_team() == TURNS[turn % 2]
 
 
-def get_kings_cords(board: Board, team: str = "White" or "Black"):
+def get_kings_cords(board: Board, team: str = W or B):
     return board.get_king_coords(team)
 
 
 def get_opposite_team(piece: Piece_Class.Piece):
     target_team = piece.get_team()
-    if target_team == "Black":
-        team = "White"
+    if target_team == B:
+        team = W
     else:
-        team = "Black"
+        team = B
     return team
 
 
@@ -39,7 +38,7 @@ def get_tiles(board: Board, king: Soldier_Classes.King):
     return final_tiles
 
 
-def check_whole_board(board: Board, target_coords: list, opposite_team="White" or "Black"):
+def check_whole_board(board: Board, target_coords: list, opposite_team=W or B):
     """
     Checking each cell on the board if it's a Piece and if it's the opposing team of the king
     Then checking if it can reach the desired tile, meaning king can't escape there
@@ -71,10 +70,6 @@ def is_mate(board: Board, king: Soldier_Classes.King):
 
 def handle_check(board: Board, king: Soldier_Classes.King):
     mate = is_mate(board, king)
-    if mate:
-        print(f"{board}\n{CHECKMATE % get_opposite_team(king)}")
-    else:
-        print(CHECK)
     return mate
 
 
@@ -104,7 +99,26 @@ def handle_input(move: list):
     return move
 
 
-def player_move(board: Board, king: Soldier_Classes.King, turn: int):
+def get_all_pieces(board: Board, team: str):
+    pieces = []
+    for i in range(8):
+        for j in range(8):
+            if isinstance(board[[i, j]], Piece_Class.Piece):
+                if board[[i, j]].get_team() == team:
+                    pieces.append([i, j])
+    return pieces
+
+
+def is_stalemate(board: Board, coords: list, king: Soldier_Classes.King):
+    """
+    checking if a stalemate happened, how?
+     - checking if the target king is surrounded
+     - checking if the other team has any moves that could change this option
+    """
+    our_team = get_opposite_team(king)
+
+
+def player_move(board: Board, king: Soldier_Classes.King, turn: int, location: Locations):
     """
     handles all of the functions that happen when a player move is being made,
     checking that the move is valid
@@ -112,69 +126,90 @@ def player_move(board: Board, king: Soldier_Classes.King, turn: int):
     checking if a check, mate or a pat is true after the move
     :param board: The playing board
     :param king: the opposing team's king piece
+    :param location: The location of each team's Pieces on the playing board
     :param turn: what turn we're on
     """
+    final_msg = ''
     mate = False
     valid = False
     while not valid:
         try:
+            if final_msg:
+                print(final_msg)
             play = input("Move: ")
             play = play.split(" ")
             move_from = handle_input(list(play[0]))
             if not check_correct_team_move(board, move_from, turn):
-                print(TEAM_ERROR)
+                final_msg = TEAM_ERROR
             else:
                 if play[1] == "to":
                     play[1] = play[2]
                 move_to = handle_input(list(play[1]))
                 if not move_to or not move_from:
                     # meaning that the function handle_input() got bad input so, we need to
-                    print(SYNTAX_ERROR)
+                    final_msg = SYNTAX_ERROR
                 else:
                     if not board.player_move(move_from, move_to):
-                        print(MOVEMENT_ERROR)
+                        final_msg = MOVEMENT_ERROR
                     else:
                         valid = True
+                        final_msg = ''
                         # Since we moved the piece to the target tile,
                         # we need to check if the other king is withing the Piece's reach
                         if is_check(board, move_to, king):
                             mate = handle_check(board, king)
+                            final_msg = f'\n{CHECK}' if not mate else f'\n{CHECKMATE % get_opposite_team(king)}'
                         else:
-                            # Stalemate is not fully initialized
-                            pass
-                        # todo: stalemate is a situation where the king is not checked but every move it makes it
-                        #  makes it will be checked and there's no legal move to do in order to prevent it
-                        #  so what we need to do is to check if the is_mate is True, because it's checking all the
-                        #  tiles around king to see if they are checked.
-                        #  if it is True, we need to check all the map if they can either block the path to the King
-                        #  or eat one of the Pieces that threat the King
+                            # Stalemate is not fully initialized yet
+                            if is_stalemate(board, move_to, king):
+                                mate = True
+                                final_msg = STALEMATE
         # except (ValueError, IndexError, AttributeError) as e:
         except (IndexError, TypeError, ValueError, AttributeError) as e:
             # Handles bad user input
             if type(e) is AttributeError:
-                print(MOVEMENT_ERROR)
+                final_msg = f'\n{MOVEMENT_ERROR}'
             else:
-                print(SYNTAX_ERROR)
+                final_msg = f'\n{SYNTAX_ERROR}'
         finally:
             if valid:
-                return mate
+                return mate, final_msg
+
+
+def reset_msg(board: Board, team: str):
+    """
+    we want the message that we print to the console to be reset each turn
+    """
+    msg = '%s\n%s' % (str(board), WHOS_PLAYING % team)
+    return msg
+
+
+def initialize_locations(board: Board):
+    black = get_all_pieces(board, B)
+    white = get_all_pieces(board, W)
+    ls = Locations(black, white)
+    return ls
 
 
 def main():
     playing_board = Board()
+    team_locations = initialize_locations(playing_board)
     turn = 0
     mate = False
+    print(reset_msg(playing_board, TURNS[turn % 2]))
     while not mate:
-        print(playing_board)
-        print(WHOS_PLAYING % TURNS[turn % 2])
         w_king_cords = get_kings_cords(playing_board, TURNS[0])
         b_king_cords = get_kings_cords(playing_board, TURNS[1])
         if TURNS[turn % 2] == "White":
             target_king = playing_board[b_king_cords]
         else:
             target_king = playing_board[w_king_cords]
-        mate = player_move(playing_board, target_king, turn)
+        mate, add_to_msg = player_move(playing_board, target_king, turn, team_locations)
         turn += 1
+        FINAL_MSG = reset_msg(playing_board, TURNS[turn % 2])
+        FINAL_MSG += '%s' % add_to_msg
+        add_to_msg = ''
+        print(FINAL_MSG)
 
 
 if __name__ == '__main__':

@@ -1,9 +1,16 @@
 from colors import *
 
+# Teams
+W = 'White'
+B = 'Black'
+
+# Final msg to be printed
+FINAL_MSG = ''
+
 # Checks
 CHECK = f"{Colors.GREEN}Check!{Colors.END}"
 CHECKMATE = f"{Colors.CYAN}Checkmate!\n %s Won!{Colors.END}"
-STALEMATE = f"{Colors.BLUE}Pate situation has been reached!\n\tTie!{Colors.UNDERLINE}"
+STALEMATE = f"{Colors.BLUE}Stalemate situation has been reached!\n\tTie!{Colors.UNDERLINE}"
 
 
 # Errors
