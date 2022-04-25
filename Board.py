@@ -272,7 +272,7 @@ class Board(object):
             self.board[self.last_moved[0]][self.last_moved[1]].first = False
         self.last_moved = (x, y)
 
-    def player_move(self, move_from: list[int, int], move_to: list[int, int], test_move=False):
+    def player_move(self, move_from: list, move_to: list, test_move=False):
         """
         Handles the player's move and checking if it is valid
         :param move_from: current cell the piece is in
@@ -319,7 +319,7 @@ class Board(object):
                     return True
         return False
 
-    def __getitem__(self, item: list[int]):
+    def __getitem__(self, item: list):
         return self.board[item[0]][item[1]]
 
     def __str__(self):

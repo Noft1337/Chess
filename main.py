@@ -1,3 +1,4 @@
+import socket
 import Piece_Class
 from Board import Board
 from locations import *
@@ -265,6 +266,9 @@ def initialize_locations(board: Board):
 
 
 def main():
+    """
+    main function of the Chess game when it's not multiplayer
+    """
     playing_board = Board()
     team_locations = initialize_locations(playing_board)
     p_boards = Previous(playing_board)

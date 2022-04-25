@@ -1,5 +1,17 @@
 from colors import *
 
+# Messages
+OPENING_MSG = "Welcome to my Chess game!\n" \
+              "How to play:\n\t" \
+              "Movement: <From: Tile> <To: Tile>\n\t" \
+              "Rolling back: You can roll the board back by typing !<How many turns back>\n\n" \
+              "Please choose:\n" \
+              "1. Play alone, you vs you\n" \
+              "2. Play multiplayer\n" \
+              "I choose: "
+ENTER_IP = "Please enter the server's IP address: "
+ENTER_PORT = "Please enter the port to connect to: "
+
 # Teams
 W = 'White'
 B = 'Black'
@@ -24,6 +36,12 @@ POSITION_ERROR = f"{Colors.RED}The cell you'd like to move from is not manned by
 TEAM_ERROR = f"{Colors.RED}You can't move this piece{Colors.END}"
 BLOCKED_WAY = f"{Colors.RED}The way is blocked{Colors.END}"
 THREAT_ERROR = f"{Colors.GREEN}{Colors.BOLD}The King cannot be moved into a threat!{Colors.END}"
+UTILIZATION_ERROR = f"{Colors.RED}This function has not been fully utilized yet. Sorry!{Colors.END}"
+IP_ERROR = f"{Colors.RED}Invalid IP.{Colors.END}"
+PORT_ERROR = f"{Colors.RED}Invalid PORT.{Colors.END}"
+
+# Server messages
+SERVER_START = f"{Colors.BLUE}[*] - [SYSTEM] Server is starting...{Colors.END}"
 
 # Symbols and Icons
 EMPTY_SYMBOL = '_'
