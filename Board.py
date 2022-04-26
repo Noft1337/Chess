@@ -109,6 +109,8 @@ class Board(object):
             # if we are moving only 1 tile we don't need to check if the way is clear.
             return True
         while x1 != x2 - 1:
+            if x1 == x2 + 1:
+                return True
             if x1 > x2:
                 x1 -= 1
             else:
@@ -121,30 +123,40 @@ class Board(object):
                 return False
         return True
 
+    def iterate_rook(self, v1, v2, z, opposite=False):
+        iteration = 0
+        while v1 != v2 - 1:
+            if v1 == v2 + 1:
+                return True
+            iteration += 1
+            if v1 > v2:
+                v1 -= 1
+            else:
+                v1 += 1
+            if not opposite:
+                if self.board[v1][z] != EMPTY_SYMBOL:
+                    print(f"opposite: piece in the way: {self.board[v1][z]}\nx,y {v1, z}")
+                    return False
+            else:
+                if self.board[z][v1] != EMPTY_SYMBOL:
+                    print((f"piece in the way: {self.board[v1][z]}\nx,y {v1, z}"))
+                    return False
+        return True
+
     def clear_rook(self, x1, y1, x2, y2):
         """
         makes sure that the rook's way is clear until its target
         """
-        if abs(x1 - x2) == 1 or abs(y1 - y2) == 1:
+        if (y1 == y2 and abs(x1 - x2) == 1) or (x1 == x2 and abs(y1 - y2) == 1):
             # if we are moving only 1 tile we don't need to check if the way is clear.
             return True
-        if x1 != x2:
-            while x1 != x2 - 1:
-                if x1 > x2:
-                    x1 -= 1
-                else:
-                    x1 += 1
-                if self.board[x1][y1] != EMPTY_SYMBOL:
-                    return False
+        iteration = 0
+        if y1 == y2:
+            return self.iterate_rook(x1, x2, y1)
+        elif x1 == x2:
+            return self.iterate_rook(y1, y2, x1, opposite=True)
         else:
-            while y1 != y2 - 1:
-                if y1 > y2:
-                    y1 -= 1
-                else:
-                    y1 += 1
-                if self.board[x1][y1] != EMPTY_SYMBOL:
-                    return False
-        return True
+            return False
 
     def clear_way(self, x1, y1, x2, y2):
         if isinstance(self.board[x1][y1], Soldier_Classes.Rook):
@@ -196,8 +208,6 @@ class Board(object):
         self.board[y_to][x_to] = self.board[y_from][x_from]
         self.board[y_from][x_from] = EMPTY_SYMBOL
         self.update_last_moved(y_to, x_to)
-        # todo: make sure that if a pawn has reached the other side of the board
-        #  it can become a Queen, Knight, Rook or Bishop
 
     def check_castling_threats(self, y_from, x_from, y_to, x_to, team):
         """
