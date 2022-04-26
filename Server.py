@@ -66,6 +66,14 @@ def handle_user_input(board: Board, king: Soldier_Classes.King, turn: int, locs:
     return mate, add_to_msg, turn
 
 
+def mains():
+    """
+    make sure the server is always running and available
+    """
+    while True:
+        main()
+
+
 def main():
     turn = 0
     playing_board = Board()
@@ -85,4 +93,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    mains()

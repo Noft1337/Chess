@@ -81,6 +81,7 @@ def send_move(s: socket.socket, team: str):
         resp = s.recv(HEADER).decode()
         print(resp)
         valid = validate_response(resp, team)
+    return resp
 
 
 def check_if_mate(msg: str):
@@ -92,7 +93,7 @@ def check_if_mate(msg: str):
 def handle_msg(msg: str, team: str, s: socket.socket):
     print(msg)
     if (TEAM_PLAYING % team) in msg:
-        send_move(s, team)
+        msg = send_move(s, team)
     return check_if_mate(msg)
 
 
@@ -115,6 +116,7 @@ def client_main():
                     team = set_team(msg)
                     team_set = True
                 mate = handle_msg(msg, team, s)
+        s.close()
 
 
 if __name__ == '__main__':
