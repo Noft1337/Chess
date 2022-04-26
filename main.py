@@ -8,7 +8,7 @@ import Soldier_Classes
 TURNS = {0: W, 1: B}
 
 
-def check_correct_team_move(board: Board, cell: list[int, int], turn: int):
+def check_correct_team_move(board: Board, cell: list, turn: int):
     return board[cell[::-1]].get_team() == TURNS[turn % 2]
 
 
@@ -186,7 +186,7 @@ def move_backwards(board: Board, user_input: str, turn: int, p_boards: Previous)
     return board, turn - (how_many + 1)
 
 
-def player_move(board: Board, king: Soldier_Classes.King, turn: int, location: Locations, p_boards: Previous):
+def player_move(board: Board, king: Soldier_Classes.King, turn: int, location: Locations, p_boards: Previous, player_input=''):
     """
     handles all the functions that happen when a player move is being made,
     checking that the move is valid
@@ -204,8 +204,13 @@ def player_move(board: Board, king: Soldier_Classes.King, turn: int, location: L
     while not valid:
         try:
             if final_msg:
+                if player_input:
+                    return False, final_msg, turn
                 print(final_msg)
-            play = input("Move: ")
+            if player_input:
+                play = player_input
+            else:
+                play = input("Move: ")
             if play.startswith("!"):
                 valid = True
                 board, turn = move_backwards(board, play, turn, p_boards)
@@ -265,6 +270,22 @@ def initialize_locations(board: Board):
     return ls
 
 
+def get_target_king(playing_board: Board, turn: int) -> Soldier_Classes.King:
+    w_king_cords = get_kings_cords(playing_board, TURNS[0])
+    b_king_cords = get_kings_cords(playing_board, TURNS[1])
+    if TURNS[turn % 2] == "White":
+        target_king = playing_board[b_king_cords]
+    else:
+        target_king = playing_board[w_king_cords]
+    return target_king
+
+
+def finalize_msg(playing_board: Board, turn: int, add_to_msg: str):
+    final = reset_msg(playing_board, TURNS[turn % 2])
+    final += '%s' % add_to_msg
+    return final
+
+
 def main():
     """
     main function of the Chess game when it's not multiplayer
@@ -276,19 +297,13 @@ def main():
     mate = False
     print(reset_msg(playing_board, TURNS[turn % 2]))
     while not mate:
-        w_king_cords = get_kings_cords(playing_board, TURNS[0])
-        b_king_cords = get_kings_cords(playing_board, TURNS[1])
-        if TURNS[turn % 2] == "White":
-            target_king = playing_board[b_king_cords]
-        else:
-            target_king = playing_board[w_king_cords]
+        target_king = get_target_king(playing_board, turn)
         mate, add_to_msg, turn = player_move(playing_board, target_king, turn, team_locations, p_boards)
         p_boards.add_board(playing_board)
         turn += 1
-        FINAL_MSG = reset_msg(playing_board, TURNS[turn % 2])
-        FINAL_MSG += '%s' % add_to_msg
+        final = finalize_msg(playing_board, turn, add_to_msg)
         add_to_msg = ''
-        print(FINAL_MSG)
+        print(final)
 
 
 if __name__ == '__main__':

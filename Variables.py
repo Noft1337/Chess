@@ -42,6 +42,7 @@ PORT_ERROR = f"{Colors.RED}Invalid PORT.{Colors.END}"
 
 # Server messages
 SERVER_START = f"{Colors.BLUE}[*] - [SYSTEM] Server is starting...{Colors.END}"
+OPONNENT_LEFT = "Your opponent left.\nYou win!"
 
 # Symbols and Icons
 EMPTY_SYMBOL = '_'

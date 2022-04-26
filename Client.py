@@ -62,11 +62,10 @@ def connection_input():
 
 
 def set_team(msg: str):
-    if "White" in msg:
+    if "Welcome White!" in msg:
         team = "White"
     else:
         team = "Black"
-    TEAM_SET = True
     return team
 
 
@@ -85,17 +84,20 @@ def send_move(s: socket.socket, team: str):
 
 
 def check_if_mate(msg: str):
-    return CHECK_MATE in msg
+    if (CHECK_MATE or OPONNENT_LEFT) in msg:
+        return True
+    return False
 
 
 def handle_msg(msg: str, team: str, s: socket.socket):
     print(msg)
-    if TEAM_PLAYING % team in msg:
+    if (TEAM_PLAYING % team) in msg:
         send_move(s, team)
     return check_if_mate(msg)
 
 
 def client_main():
+    team_set = TEAM_SET
     online = handle_input()
     team = ""
     if online == '1':
@@ -109,8 +111,9 @@ def client_main():
         while not mate:
             msg = s.recv(HEADER).decode()
             if msg:
-                if not TEAM_SET:
+                if not team_set:
                     team = set_team(msg)
+                    team_set = True
                 mate = handle_msg(msg, team, s)
 
 

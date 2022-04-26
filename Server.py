@@ -8,7 +8,7 @@ from Variables import *
 
 IP = "127.0.0.1"
 PORT = 32412
-HEADER = 1024
+HEADER = 2048
 
 TURNS = {0: W, 1: B}
 
@@ -16,40 +16,13 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((IP, PORT))
 
 
-def players_move(board: Board, con: socket.socket, turn: int, teams: dict):
-    pass
+def send_all_connections(msg: str, *args: socket.socket):
+    for arg in args:
+        arg.send(msg.encode())
 
 
-def player_move(board: Board, king: Soldier_Classes.King, turn: int, location: Locations, p_boards: Previous):
-    """
-    handles all the functions that happen when a player move is being made,
-    checking that the move is valid
-    checking that the piece that is trying to be moved belongs to the playing team
-    checking if a check, mate or a pat is true after the move
-    :param board: The playing board
-    :param king: the opposing team's king piece
-    :param location: The location of each team's Pieces on the playing board
-    :param turn: what turn we're on
-    :param p_boards: The boards of previous turns
-    """
-    final_msg = ''
-    mate = False
-    valid = False
-    while not valid:
-        try:
-           pass
-        except (IndexError, TypeError, ValueError, AttributeError) as e:
-            # Handles bad user input
-            if type(e) is AttributeError:
-                final_msg = f'\n{MOVEMENT_ERROR}'
-            else:
-                final_msg = f'\n{SYNTAX_ERROR}'
-        finally:
-            if valid:
-                return mate, final_msg, turn
-
-
-def start_server():
+def start_server(msg: str):
+    con1 = con2 = ''
     server.listen()
     listening = True
     print(SERVER_START)
@@ -57,27 +30,58 @@ def start_server():
         # White connected
         con1, adr1 = server.accept()
         print(f"[*] - [NEW CONNECTION] {adr1} connected as White!")
+        con1.send("Welcome White!, waiting for Black to join.".encode())
         # Black connected
         con2, adr2 = server.accept()
+        con2.send("Welcome Black! starting game!".encode())
+        con1.send("Black joined! starting game!".encode())
         print(f"[*] - [NEW CONNECTION] {adr2} connected as Black!")
         if con1 and con2:
+            send_all_connections(msg, con1, con2)
             listening = False
+
     return con1, con2
 
 
+def get_input(turn: int, turns: dict[int: socket.socket]):
+    u_input = turns[turn % 2].recv(HEADER).decode()
+    print(f"{TURNS[turn % 2]}'s move: {u_input}")
+    return u_input
+
+
+def handle_user_input(board: Board, king: Soldier_Classes.King, turn: int, locs: Locations, p_b: Previous, turns: dict):
+    """
+    Handles the user input to make sure that in the end it's valid
+    """
+    mate = False
+    add_to_msg = ''
+    valid = False
+    while not valid:
+        player_input = get_input(turn, turns)
+        mate, add_to_msg, turn = main_offline.player_move(board, king, turn, locs, p_b, player_input)
+        if Colors.RED in add_to_msg:
+            turns[turn % 2].send(add_to_msg.encode())
+        else:
+            valid = True
+    return mate, add_to_msg, turn
+
+
 def main():
+    turn = 0
     playing_board = Board()
     team_locations = main_offline.initialize_locations(playing_board)
     p_boards = Previous(playing_board)
-    con1, con2 = start_server()
-    turn = 0
-    teams = {con1: "White", con2: "Black"}
+    to_send = main_offline.reset_msg(playing_board, TURNS[turn % 2])
+    con1, con2 = start_server(to_send)
     turns = {0: con1, 1: con2}
-    while True:
-        msg = input("MSG: ")
-        con1.send(msg.encode())
-        con2.send(msg.encode())
-
+    mate = False
+    while not mate:
+        king = main_offline.get_target_king(playing_board, turn)
+        mate, add_to_msg, turn = handle_user_input(playing_board, king, turn, team_locations, p_boards, turns)
+        turn += 1
+        to_send = main_offline.finalize_msg(playing_board, turn, add_to_msg)
+        print(to_send)
+        send_all_connections(to_send, con1, con2)
 
 
 if __name__ == '__main__':
