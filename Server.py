@@ -6,7 +6,7 @@ import main as main_offline
 import Soldier_Classes
 from Variables import *
 
-IP = "127.0.0.1"
+IP = "192.168.248.1"
 PORT = 32412
 HEADER = 2048
 

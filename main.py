@@ -4,6 +4,7 @@ from Board import Board
 from locations import *
 from Previous_Boards import Previous
 import Soldier_Classes
+import traceback
 
 TURNS = {0: W, 1: B}
 
@@ -107,8 +108,8 @@ def get_all_pieces(board: Board, team: str):
     pieces = []
     for i in range(8):
         for j in range(8):
-            if isinstance(board[[i, j]], Piece_Class.Piece):
-                if board[[i, j]].get_team() == team:
+            if isinstance(board.board[i][j], Piece_Class.Piece):
+                if board.board[i][j].get_team() == team:
                     pieces.append([i, j])
     return pieces
 
@@ -179,11 +180,11 @@ def move_backwards(board: Board, user_input: str, turn: int, p_boards: Previous)
     Move the game a few steps backwards
     """
     how_many = handle_backwards_input(user_input, turn)
-    board = p_boards.roll_back(how_many)
+    board = p_boards.roll_back(how_many, board)
     # I return turn too because when we roll the playing board back we want that the team that has been playing
     # when the board was in this form will be the same. I decrease it by 1 too because it gets increased
     # soon as player_move exits
-    return board, turn - (how_many + 1)
+    return board[0], turn - (how_many + 1)
 
 
 def player_move(board: Board, king: Soldier_Classes.King, turn: int, location: Locations, p_boards: Previous, player_input=''):
@@ -247,9 +248,9 @@ def player_move(board: Board, king: Soldier_Classes.King, turn: int, location: L
         except (IndexError, TypeError, ValueError, AttributeError) as e:
             # Handles bad user input
             if type(e) is AttributeError:
-                final_msg = f'\n{MOVEMENT_ERROR}'
+                final_msg = f'\n{traceback.format_exc()}{MOVEMENT_ERROR}'
             else:
-                final_msg = f'\n{SYNTAX_ERROR}'
+                final_msg = f'\n{traceback.format_exc()}\n{SYNTAX_ERROR}'
         finally:
             if valid:
                 return mate, final_msg, turn

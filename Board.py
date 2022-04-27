@@ -54,8 +54,36 @@ class Board(object):
         self.w_king_coords = (7, 4)
         self.b_king_coords = (0, 4)
 
+        self.pawns_moved = []
+
     def get_board(self):
-        return self.board
+        return self.board, self.w_king_coords, self.b_king_coords, self.pawns_moved, self.last_moved
+
+    def retrue_first(self, pawn: Soldier_Classes.Pawn):
+        """
+        when we roll back if the last moved piece was a Pawn and, it was its first move we need to set Pawn.first to True
+        """
+        if self.board[self.last_moved[0]][self.last_moved[1]] == pawn:
+            pawn.first = True
+
+    def integrate_pawns(self, new_pawns: list):
+        """
+        when we roll back the board if pawns are getting moved back to its initial position
+        we need to set Pawn.moved to False
+        """
+        different_pawns = list(set(self.pawns_moved) - set(new_pawns))
+        for pawn in different_pawns:
+            self.retrue_first(pawn)
+            pawn.moved = False
+        return new_pawns
+
+    def set_board(self, set_to: tuple):
+        self.board = set_to[0]
+        self.w_king_coords = set_to[1]
+        self.b_king_coords = set_to[2]
+        self.last_moved = set_to[4]
+        old_pawns_moved = self.integrate_pawns(set_to[3])
+        self.pawns_moved = old_pawns_moved
 
     def check_king(self, x, y):
         """
@@ -135,11 +163,9 @@ class Board(object):
                 v1 += 1
             if not opposite:
                 if self.board[v1][z] != EMPTY_SYMBOL:
-                    print(f"opposite: piece in the way: {self.board[v1][z]}\nx,y {v1, z}")
                     return False
             else:
                 if self.board[z][v1] != EMPTY_SYMBOL:
-                    print((f"piece in the way: {self.board[v1][z]}\nx,y {v1, z}"))
                     return False
         return True
 
@@ -204,7 +230,12 @@ class Board(object):
             # In the end we want the piece back to its position.
             self.board[x_from][y_from] = piece
 
+    def add_to_pawns(self, x, y):
+        if isinstance(self.board[x][y], Soldier_Classes.Pawn):
+            self.pawns_moved.append(self.board[x][y])
+
     def eat(self, y_from, x_from, y_to, x_to):
+        self.add_to_pawns(y_from, x_from)
         self.board[y_to][x_to] = self.board[y_from][x_from]
         self.board[y_from][x_from] = EMPTY_SYMBOL
         self.update_last_moved(y_to, x_to)
